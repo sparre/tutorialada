@@ -1,2 +1,7 @@
-# tutorialada
-Tutorial on the Ada Programming Language
+TutorialAda
+===========
+
+An Ada programming language tutorial.
+
+Peter C. Chapin  
+PChapin@vtc.vsc.edu

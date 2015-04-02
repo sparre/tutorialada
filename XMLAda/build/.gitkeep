@@ -1,0 +1,4 @@
+
+This file ensures the enclosing folder is created when the repository is cloned. This is
+necessary because GPS will produce error messages if this folder does not exist and GPS will not
+create it automatically.

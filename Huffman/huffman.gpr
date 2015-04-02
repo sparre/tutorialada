@@ -1,0 +1,12 @@
+project Huffman is
+
+   for Main use ("huffman.adb");
+
+   package Compiler is
+      for Default_Switches ("ada") use ("-gnato", "-fstack-check");
+   end Compiler;
+
+   for Object_Dir use "build";
+
+end Huffman;
+

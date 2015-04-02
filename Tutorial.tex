@@ -1,0 +1,1751 @@
+
+\chapter{Tutorial}
+\label{chapt:tutorial}
+
+Welcome to the Ada programming language! The purpose of this tutorial is to give you an overview
+of Ada so that you can start writing Ada programs quickly. This tutorial does not attempt to
+cover the entire language. Ada is very large, so complete coverage of all its features would
+take many more pages than are contained in this document. However, it is my hope that after
+reading this tutorial you will have a good sense of what Ada is like, appreciate some of its
+nicer features, and feel interested in learning more
+\cite{Barnes2014,McCormick2011,Ben-Ari2009,Burns2007,Dale2007}.
+
+This tutorial assumes you are already familiar with one or more languages in the C family: C,
+C++, Java, C\#, or something similar. It is not my intention to teach you how to program. I
+assume you already understand concepts such as loops, data types, functions, and so forth.
+Instead this tutorial describes how to use these things in Ada. In cases where Ada provides
+features that might be unfamiliar to you (such as subtypes, discriminated types, and tasking) I
+will discuss those features a bit more comprehensively.
+
+Ada is a powerful language designed to address the following issues:
+
+\begin{itemize}
+\item The development of very large programs by multiple, loosely connected teams. The language
+  has features to help manage a large number of program components, and to help ensure those
+  components are used consistently.
+
+\item The development of long lived programs that spend most of their time in the maintenance
+  phase of the software life cycle. The language is designed to promote the readability of
+  programs. You may find Ada code to be rather verbose and tedious to write. However, that extra
+  work pays off later by making the code clearer and easier to read when bugs must be fixed or
+  enhancements written.
+
+\item The development of robust programs where correctness, security, and reliability are
+  priorities. The language has features designed to make programming safer and less error prone.
+  Some of these features involve extra run time checking and thus entail a performance penalty.
+  However, Ada's design is such that the performance penalty is normally not excessive.
+
+\item The development of embedded systems where low level hardware control, multiple concurrent
+  tasks, and real time requirements are common. The language has features designed to support
+  these things while still retaining as much safety as feasible.
+\end{itemize}
+
+\section{Hello, Ada}
+\label{sec:hello-ada}
+
+Whenever you begin to study a new language or software development environment you should start
+by writing the most trivial program possible in that language or environment. Thus I will begin
+this tutorial with a short but complete program that displays the string ``Hello, Ada!'' on the
+console.
+
+\label{lst:hello-ada}
+\begin{lstlisting}
+with Ada.Text_IO;
+
+procedure Hello is
+begin
+   Ada.Text_IO.Put_Line("Hello, Ada!");
+end Hello;
+\end{lstlisting}
+
+\noindent The program starts with a \newterm{context clause} consisting of a |with| statement.
+The context clause specifies the packages that will be used in this particular compilation unit.
+Although the compilation unit above contains just a single procedure, most Ada code is in
+packages. The standard library components are in child packages of the package |Ada|. In this
+case we will be using facilities in the child package |Ada.Text_IO|.
+
+The main program is the procedure named |Hello|. The precise name used for the main program can
+be anything; exactly which procedure is used as the program's entry point is specified when the
+program is compiled. The procedure consists of two parts: the part between |is| and |begin| is
+called the declarative part. Although empty in this simple case, it is here where you would
+declare local variables and other similar things. The part between |begin| and |end| constitute
+the executable statements of the procedure. In this case, the only executable statement is a
+call to procedure |Put_Line| in package |Ada.Text_IO|. As you can probably guess from its name,
+|Put_Line| prints the given string onto the program's standard output device. It also terminates
+the output with an appropriate end-of-line marker.
+
+Notice how the name of the procedure is repeated at the end. This is optional, but considered
+good practice. In more complex examples the readability is improved by making it clear exactly
+what is ending. Notice also the semicolon at the end of the procedure definition. C family
+languages do not require a semicolon here so you might accidentally leave it out.
+
+Spelling out the full name |Ada.Text_IO.Put_Line| is rather tedious. If you wish to avoid it you
+can include a |use| statement for the |Ada.Text_IO| package in the context clause (or in the
+declarative part of |Hello|). Where the |with| statement makes the names in the withed package
+\newterm{visible}, the |use| statement makes them \newterm{directly visible}. Such names can
+then be used without qualification as shown below:
+
+\begin{lstlisting}
+with Ada.Text_IO; use Ada.Text_IO;
+
+procedure Hello is
+begin
+   Put_Line("Hello, Ada!");
+end Hello;
+\end{lstlisting}
+
+\noindent Many Ada programmers do this to avoid having to write long package names all the time.
+However, indiscriminate use of |use| can make it difficult to understand your program because it
+can be hard to tell in which package a particular name has been declared.
+
+Ada is a case insensitive language. Thus identifiers such as |Hello|, |hello|, and |hElLo| all
+refer to the same entity. It is traditional in modern Ada source code to use all lower case
+letters for reserved words. For all other identifiers, capitalize the first letter of each word
+and separate multiple words with an underscore.\footnote{This style is often called ``title
+  case.''} The Ada language does not enforce this convention but it is a well established
+standard in the Ada community so you should follow it.
+
+Before continuing I should describe how to compile the simple program above. I will assume you
+are using the freely available GNAT compiler. This is important because GNAT requires specific
+file naming conventions that you must follow. These conventions are not part of the Ada language
+and are not necessarily used by other Ada compilers. However, GNAT depends on these conventions
+in order to locate the files containing the various compilation units of your program.
+
+The procedure |Hello| should be stored in a file named \filename{hello.adb}. Notice that the
+name of the file must be in lower case letters and must agree with the name of the procedure
+stored in that file. The \filename{adb} extension stands for ``Ada body.'' This is in contrast
+with Ada specification files that are given an extension of \filename{ads}. You will see Ada
+specifications when I talk about packages in Section~\ref{sec:packages}. I will describe other
+GNAT file naming requirements at that time.
+
+To compile \filename{hello.adb}, open a console (or terminal) window and use the gnatmake
+command as follows
+
+\begin{Verbatim}
+> gnatmake hello.adb
+\end{Verbatim}
+
+\noindent The \command{gnatmake} command will compile the given file and link the resulting
+object code into an executable producing, in the above example, \filename{hello.exe} (on
+Windows). You can compile Ada programs without \command{gnatmake} by running the compiler and
+linker separately. There are sometimes good reasons to do that. However, for the programs you
+will write as a beginning Ada programmer, you should get into the habit of using
+\command{gnatmake}.
+
+Note that GNAT comes with a graphical Ada programming environment named GPS (GNAT Programming
+Studio). GPS is similar to other modern integrated development environments such as Microsoft's
+Visual Studio or Eclipse. Feel free to experiment with GPS if you are interested. However, the
+use of GPS is outside the scope of this tutorial.
+
+When the compilation has completed successfully you will find that several additional files have
+been created. The files \filename{hello.o} and \filename{hello.exe} (on Windows) are the object
+file and executable file respectively. The file \filename{hello.ali} is the Ada library
+information file. This file is used by GNAT to implement some of the consistency checking
+required by the Ada language. It is a plain text file; feel free to look at it. However, you
+would normally ignore the \filename{ali} files. If you delete them, they will simply be
+regenerated the next time you compile your program.
+
+\subsection*{Exercises}
+
+\begin{enumerate}
+\item Enter the trivial ``Hello, Ada'' program on page~\pageref{lst:hello-ada} into your system.
+  Compile and run it.
+
+\item Make a minor modification to the trivial program that results in an error. Try compiling
+  the program again. Try several different minor errors. This will give you a feeling for the
+  kinds of error messages GNAT produces.
+
+\item Experiment with the |use| statement. Try calling |Put_Line| without specifying its
+  package, both with and without the |use| statement. Try putting the |use| statement inside the
+  declarative part of the procedure. Try putting the |with| statement inside the declarative
+  part of the procedure.
+\end{enumerate}
+
+\section{Control Structures}
+\label{sec:control-structures}
+
+Ada contains all the usual control structures you would expect in a modern language. The program
+below illustrates a few of them, along with several other features. This program accepts an
+integer from the user and checks to see if it is a prime number.
+
+\begin{lstlisting}
+with Ada.Text_IO;         use Ada.Text_IO;
+with Ada.Integer_Text_IO; use Ada.Integer_Text_IO;
+
+procedure Prime is
+   Number : Integer;
+begin
+   Put("Enter an integer: ");
+   Get(Number);
+   if Number < 2 then
+      Put("The value "); Put(Number, 0); Put_Line(" is bad.");
+   else
+      Put("The value "); Put(Number, 0);
+      for I in 2 .. (Number - 1) loop
+         if Number mod I = 0 then
+            Put_Line(" is not prime.");
+            return;
+         end if;
+      end loop;
+      Put_Line(" is prime.");
+   end if;
+end Prime;
+\end{lstlisting}
+
+\noindent This procedure declares a local variable named |Number| of type |Integer| in its
+declarative part. Notice that the type appears after the name being declared (the opposite of C
+family languages), separated from that name with a colon.
+
+Procedure |Get| from package |Ada.Integer_Text_IO| is used to read an integer from the console.
+If the value entered is less than two an error message is displayed. Notice that there are two
+different |Put| procedures being used: one that outputs a string and another that outputs an
+integer. Like C++, Java, and some other modern languages, Ada allows procedure names to be
+overloaded distinguishing one procedure from another based on the parameters. In this case the
+two different |Put| procedures are also in different packages.
+
+If the value entered is two or more, the program uses a |for| loop to see if any value less than
+the given number divides into it evenly (produces a zero remainder after division). Ada for
+loops scan over the given range assigning each value in that range to the loop parameter
+variable (named |I| in this case) one at a time. Notice that it is not necessary to explicitly
+declare the loop parameter variable. The compiler deduces its type based on the type used to
+define the loop's range. It is also important to understand that if the start of the range is
+greater than the end of the range, the result is an empty range. For example, the range |2 .. 1|
+contains no members and a loop using that range won't execute at all. It does not execute
+starting at two and counting down to one. You need to use the word |reverse| to get that effect:
+
+\begin{lstlisting}
+for I in reverse 1 .. 2 loop
+\end{lstlisting}
+
+Notice also that |if| statements require the word |then| and that each |end| is decorated by the
+name of the control structure that is ending. Finally notice that a single equal sign is used to
+test for equality. There is no == operator in Ada.
+
+The program below counts the vowels in the text at its standard input. You can feed this program
+text using I/O redirection.
+
+\begin{lstlisting}
+with Ada.Text_IO;         use Ada.Text_IO;
+with Ada.Integer_Text_IO; use Ada.Integer_Text_IO;
+
+procedure Vowels is
+   Letter      : Character;
+   Vowel_Count : Integer := 0;
+begin
+   while not End_Of_File loop
+      Get(Letter);
+      case Letter is
+         when 'A'|'E'|'I'|'O'|'U' =>
+            Vowel_Count := Vowel_Count + 1;
+         when 'a'|'e'|'i'|'o'|'u' =>
+            Vowel_Count := Vowel_Count + 1;
+         when others =>
+            null;
+      end case;
+   end loop;
+   Put("Total number of vowels = "); Put(Vowel_Count);
+end Vowels;
+\end{lstlisting}
+
+\noindent This program illustrates |while| loops and |case| structures (similar to C's switch
+statement). There are quite a few things to point out about this program. Let's look at them in
+turn.
+
+\begin{itemize}
+\item Variables can be initialized when they are declared. The |:=| symbol is used to give a
+  variable its initial value (and also to assign a new value to a variable). Thus like C family
+  languages, Ada distinguishes between test for equality (using |=|) and assignment (using
+  |:=|). Unlike C family languages you'll never get them mixed up because the compiler will
+  catch all incorrect usage as an error.
+
+\item In this program the condition in the |while| loop involves calling the function
+  |End_Of_File| in package |Ada.Text_IO|. This function returns |True| if the standard input
+  device is in an end-of-file state. Notice that Ada does not require (or even allow) you to use
+  an empty parameter list on functions that take no parameters. This means that function
+  |End_Of_File| looks like a variable when it is used. This is considered a feature; it means
+  that read-only variables can be replaced by parameterless functions without requiring any
+  modification of the source code that uses that variable.
+
+\item The sample program uses the logical operator |not|. There are also operators |and| and
+  |or| that can be used in the expected way.
+
+\item The |case| statement branches to the appropriate |when| clause depending on the value in
+  the variable |Letter|. The two |when| clauses in this program show several alternatives
+  separated by vertical bars. If any of the alternatives match, that clause is executed. You can
+  also specify ranges in a |when| clause: |when 1 .. 10 => etc|.
+
+\item Ada has what are called ``full coverage rules.'' In a |case| statement you must account
+  for every possible value that might occur. Providing |when| clauses for just the vowels would
+  be an error since you would not have fully covered all possible characters. In this program I
+  want to ignore the other characters. To do this, I provide a |when| others clause that
+  executes the null statement. This lets future readers of my program know that I am
+  intentionally ignoring the other characters.
+\end{itemize}
+
+\subsection*{Exercises}
+
+\begin{enumerate}
+\item The prime number checking program above is not very efficient. It can be improved by
+  taking advantage of the following observation: If |Number| is not divisible by any value less
+  than |I|, then it can't be divisible by any value greater than |Number/I|. Thus the upper
+  bound of the loop can be reduced as |I| increases. Modify the program to use this observation
+  to improve its performance. Note: You will have to change the |for| loop to a |while| loop
+  (try using a |for| loop first and see what happens).
+
+\item Modify the prime number checking program so that it loops repeatedly accepting numbers
+  from the user until the user types -1. You can program an infinite loop in Ada as shown below.
+  Have your program print out different error messages for negative numbers (other than -1) than
+  for the values zero and one. Use an |if| \ldots\ |elsif| chain (note the spelling of |elsif|).
+  Write a version that uses a |case| statement instead of an |if| \ldots\ |elsif| chain. You can
+  use |Integer'First| in a range definition to represent the first (smallest) |Integer| value
+  the compiler can represent.
+
+  \begin{lstlisting}
+  loop
+     ...
+     exit when \textit{condition}
+     ...
+  end loop;
+  \end{lstlisting}
+\end{enumerate}
+
+\section{Subprograms}
+
+Unlike C family languages, Ada distinguishes between procedures and functions. Specifically,
+functions must return a value and must be called as part of a larger expression. Procedures
+never return a value (in the sense that functions do) and must be called in their own
+statements. Collectively procedures and functions are called subprograms in situations where
+their differences don't matter.
+
+Subprograms can be defined in any declarative part. Thus it is permissible to nest subprogram
+definitions inside each other. A nested subprogram has access to the parameters and local
+variables in the enclosing subprogram that are defined above the nested subprogram. The scope
+rules are largely what you would expect. Below is a variation of the prime number checking
+program that introduces a nested function |Is_Prime| that returns |True| if its argument is a
+prime number.
+
+\begin{lstlisting}
+with Ada.Text_IO;         use Ada.Text_IO;
+with Ada.Integer_Text_IO; use Ada.Integer_Text_IO;
+
+procedure Prime2 is
+   Number : Integer;
+
+   -- This function returns True if N is prime; False otherwise.
+   function Is_Prime(N : Integer) return Boolean is
+   begin
+      for I in 2 .. (N – 1) loop
+         if N mod I = 0 then
+            return False;
+         end if;
+      end loop;
+      return True;
+   end Is_Prime;
+
+begin
+   Put("Enter an integer: ");
+   Get(Number);
+   if Number < 2 then
+      Put("The value "); Put(Number, 0); Put_Line(" is bad.");
+   else
+      Put("The value "); Put(Number, 0);
+      if Is_Prime(Number) then
+         Put_Line(" is prime.");
+      else
+         Put_Line(" is not prime.");
+      end if;
+   end if;
+end Prime2;
+\end{lstlisting}
+
+In this case |Is_Prime| has been declared to take a parameter |N| of type |Integer|. It could
+have also accessed the local variable |Number| directly. However, it is usually better style to
+pass parameters to subprograms in cases where it makes sense. I also wanted to illustrate the
+syntax for parameter declarations. Note that because |Is_Prime| is a function a return type must
+be specified and it must be called in the context of an expression (in the program above it is
+called in the condition of an |if| statement). Procedure declarations are similar except that no
+return type is mentioned. Also when a procedure is called it must not be part of an expression,
+but rather stand by itself as a single statement. See the calls to procedures |Put| and
+|Put_Line| in the examples so far.
+
+The program above also shows the form of a comment. Ada comments start with |--| and run to the
+end of the line. As you know, it is good to include comments in your program. However, the
+examples in this tutorial do not include many comments in order to save space (and because the
+programs are explained in the text anyway).
+
+Procedures also differ from functions in that they support several parameter ``modes.'' The
+listing below shows the definition of a procedure that illustrates this. Notice that a
+semicolon is used to separate parameter declarations and not a comma as is done in C family
+languages.
+
+\begin{lstlisting}
+procedure Mode_Example
+  (X : in Integer; Y : out Integer; Z : in out Integer) is
+begin
+  X := 1;      -- Error. Can't modify an in parameter.
+  Y := X;      -- Okay. Can read X and modify Y.
+  Z := Z + 1;  -- Okay. Can read and write an in out parameter.
+end Mode_Example;
+\end{lstlisting}
+
+The first parameter declared above has mode |in|. Parameters with this mode are initialized with
+the argument provided by the caller, but treated as constants inside the procedure. They can be
+read, but not modified. The second parameter has mode |out|. Parameters with this mode are in an
+uninitialized state when the procedure begins, but they can be used otherwise as ordinary
+variables inside the procedure. Whatever value is assigned to an |out| parameter by the time the
+procedure ends is sent back to the calling environment. The third parameter has mode |in out|.
+Parameters with this mode are initialized with the argument provided by the caller, and can also
+be modified inside the procedure. The changed value is then returned to the caller to replace
+the original value. Keep in mind that, unlike in C, modifications to parameters in Ada (when
+allowed by the parameter mode) affect the arguments used when the procedure is called.
+
+The mode |in| is the default. In earlier versions of Ada functions parameters could also only
+have mode |in| and thus it is common to leave the mode specification off when defining function
+parameters. Ada 2012 allows function parameters with any of the three modes. My recommendation,
+however, is to always specify the mode when declaring procedure parameters but accept the
+default of |in|, except under special circumstances, when declaring function parameters.
+
+Like C++, Ada also allows you to define default values for subprogram parameters. This is
+accomplished by initializing the parameter (using the |:=| assignment symbol) when the parameter
+is declared. If no argument is provided for that parameter when the subprogram is called the
+default value is used instead.
+
+Ada also allows you to call subprograms using named parameter associations. This method allows
+you to associate arguments with the parameters in any order, and it can also greatly improve the
+readability of your code---particularly if you've chosen good names for the parameters. The
+listing below shows how the procedure defined above might be called. Assume that the variables
+|Accumulator|, |N|, and |Output| have been previously declared as integers.
+
+\begin{lstlisting}
+Mode_Example(Z => Accumulator, X => N+15, Y => Output);
+\end{lstlisting}
+
+\noindent Notice that the order in which the arguments are provided is not the same as the order
+in which the parameters are declared. When named association is used, the order is no longer
+significant. Notice also that you can use any expression as the argument associated with an |in|
+parameter. However, |out| and |in out| parameters must be associated with variables and not
+arbitrary expressions since putting a value into the result of an expression doesn't really
+make sense.
+
+\subsection*{Exercises}
+
+\begin{enumerate}
+\item Write a procedure |Count_Primes| that accepts a range of integers and returns the number
+  of primes, the smallest prime, and the largest prime in that range. Your implementation should
+  use |out| parameters to return its results. It should also make use of the |Is_Prime| function
+  defined earlier. Wrap your procedure in a main program that accepts input values from the user
+  and outputs the results. Use named parameter association when calling |Count_Primes|.
+
+\item Implement |Count_Primes| from the previous question as a function (or a collection of
+  functions) instead. What are the advantages and disadvantages of each approach?
+\end{enumerate}
+
+\section{Types and Subtypes}
+
+In the examples so far you have seen the Ada types |Integer|, |Character|, and |Boolean|. Ada
+also has a type |Float| for storing floating point values and a type |String|, which is an array
+of characters. One important characteristic of Ada that sets it apart from many languages is its
+strong typing. There is no precise definition of this term, but for our purposes we will say
+that a strongly typed language is one which does no (or very few) automatic type conversions.
+Unlike C, Ada will not convert integers to floating point values or vice-versa without explicit
+instruction from the programmer. The listing below illustrates this.
+
+\begin{lstlisting}
+procedure Strong_Typing_Example is
+   I : Integer;
+   F : Float;
+begin
+   I := 1;    -- Okay.
+   I := 1.0;  -- Error. Can't assign a Float to an Integer.
+   F := 1;    -- Error. Can't assign an Integer to a Float.
+   F := 1.0;  -- Okay.
+   F := I;    -- Error.
+   I := F;    -- Error.
+   F := Float(I);    -- Okay. Explicit conversion.
+   I := Integer(F);  -- Okay. Explicit conversion.
+end Strong_Typing_Example;
+\end{lstlisting}
+
+If you are not used to strong typing you may find it excessively pedantic and annoying. However,
+it exists for a reason. Experience has shown that many bugs first manifest themselves as
+confusion about types. If you find yourself mixing types in your program, it may mean that you
+have a logical error. Does it make sense to put a value representing velocity into a variable
+that holds a passenger count? Strong typing can catch errors like this and thus it promotes
+software reliability.
+
+In fact, Ada allows you to define your own scalar types. By creating a new type for each
+logically distinct set of values in your program, you enable the compiler to find logical errors
+that it might otherwise miss. For example, consider a procedure |Put_Char| that prints a single
+character onto the terminal at a given row and column location. Instead of declaring the row and
+column parameters as integers, you might introduce two distinct types for those concepts. The
+listing below shows how it could look.
+
+\begin{lstlisting}
+type Row_Type is range 1 .. 25;
+type Column_Type is range 1 .. 80;
+
+procedure Put_Char(Row : Row_Type; Col : Column_Type; Letter : Character) is
+begin
+  -- etc
+end Put_Char;
+\end{lstlisting}
+
+Suppose the main program declared |R| as type |Row_Type| and |C| as type |Column_Type|. Now a
+call such as |Put_Char(C, R, 'x')| would be detected by the compiler as an error because the
+types used for the first two arguments don't match the types declared for those parameters.
+Accidentally switching the row and column arguments in a call like this is an easy error to
+make. Ada's strong typing, together with the use of appropriate user defined types, allows the
+compiler to catch this error rather than waiting until testing to (maybe) find it.
+
+Strong typing can also find errors in ordinary expressions. For example, consider the assignment
+statement |R := 2*C + 1|. The expression on the right hand side has type |Column_Type| but the
+variable on the left hand side has type |Row_Type|. It probably doesn't make sense to be
+assigning a column value to a row variable and Ada will flag this statement as an error. If it
+is really your intention to use this computed column value for a row number, you need to include
+an explicit conversion. The result is |R := Row_Type(2*C + 1)|.
+
+You might be wondering what happens in the above example if the result of |2*C + 1| is a value
+outside the allowed range specified for type |Row_Type|. It is important to understand that Ada
+never allows a value to be assigned to a variable that is outside the set of values for that
+variable's type. In this case a run time error would occur (an exception would be raised).
+
+Defining your own types also helps you write portable programs. The only integer type compilers
+must support is |Integer|. The number of bits used by type |Integer| is implementation defined
+and varies from compiler to compiler. Most compilers support additional, non-standard integer
+types such as |Long_Integer| and |Long_Long_Integer|. However, the names of these additional
+types, and even their existence, varies from compiler to compiler. Rather than deal with this
+complexity directly you can just specify the range of values you desire and the compiler will
+select the most appropriate underlying type. For example
+
+\begin{lstlisting}
+type Block_Counter_Type is range 0 .. 1_000_000_000;
+\end{lstlisting}
+
+Variables of type |Block_Counter_Type| may be represented as |Integer| or |Long_Integer| or some
+other type as appropriate. In any case they will be constrained to only hold values between zero
+and one billion inclusive. If the compiler does not have a built-in integer type with a large
+enough range it will produce an error message. If the compiler accepts your type definition you
+will not get any surprises. Notice also how Ada allows you to embed underscores in large numbers
+to improve their readability.
+
+Ada also allows you to define modular types. These types are unsigned and have ``wrap-around''
+semantics. Incrementing beyond the end of an ordinary type causes an exception, but incrementing
+beyond the end of a modular type wraps around to zero. In addition the operators |not|, |and|,
+|or|, and |xor| can be used on modular types to do bitwise manipulation. The listing below
+demonstrates.
+
+\begin{lstlisting}
+type Offset_Type is mod 2**12;  -- Two to the 12th power.
+-- The range of Offset_Type is 0 .. 2**12 - 1.
+...
+Offset : Offset_Type;
+...
+Offset := Offset and 16#3FF#;   -- Bitwise AND with a hex mask.
+\end{lstlisting}
+
+\noindent Here a modular type |Offset_Type| is introduced to hold 12 bit offsets. The variable
+|Offset| is masked so that only the lower 10 bits are retained. The snippet above also
+demonstrates Ada's exponentiation operator and how numbers in bases other than 10 can be
+written. Because Ada was designed for use in embedded systems, its support for low level bit
+manipulation is good.
+
+\subsection{Enumeration Types}
+
+In many cases you want to define a type that has only a small number of allowed values and you
+want to name those values abstractly. For example, the definition
+
+\begin{lstlisting}
+type Day_Type is (Sun, Mon, Tue, Wed, Thu, Fri, Sat);
+\end{lstlisting}
+
+\noindent introduces |Day_Type| as an enumeration type. Variables of type |Day_Type| can only
+take on the values listed in the type definition. These values are called enumerators. This is
+useful for writing your program in abstract terms that are easy to understand. Because the
+compiler treats enumeration types as distinct from integer types (and from each other) you will
+not be allowed to mix unrelated concepts without compile time errors.
+
+\subsection{Discrete Types}
+
+The integer types and enumeration types are discrete types because they each represent only a
+finite set of (ordered) values. All discrete types share some common properties and it is
+enlightening to describe those properties in a uniform way.
+
+Ada makes extensive use of attributes. You reference an attribute of a type using an apostrophe
+(or ``tick'') immediately following the type name. For example, |Day_Type'First| represents the
+first value in the |Day_Type| enumeration and |Integer'First| represents the first (smallest)
+allowed value of |Integer|. There is also a |Last| attribute to access the last allowed value.
+Some attributes behave like functions. For example |Day_Type'Succ(Sun)| returns |Mon|, the
+successor of |Sun| in the |Day_Type| enumeration. There is also a |Pred| attribute for finding
+the predecessor value.
+
+In addition there is a |Pos| attribute that returns the integer position of a particular
+enumerator and a |Val| attribute that does the reverse. For example |Day_Type'Pos(Mon)| is one
+(the position values start at zero) and |Day_Type'Val(1)| is |Mon|. We will see other attributes
+later in this tutorial.
+
+Ranges of discrete types can be defined in a uniform way and used, for example, as cases in
+|case| statements and ranges of |for| loops. The listing below shows a contrived example.
+
+\begin{lstlisting}
+for Day in Sun .. Fri loop
+  case Day in
+    when Sun        => etc...
+    when Mon | Tue  => etc...
+    when Wed .. Fri => etc...
+  end case;
+end loop;
+\end{lstlisting}
+
+\noindent Notice that despite Ada's full coverage rules it is not necessary to specify a case
+for |Sat|. This is because the compiler can see |Day| is limited to |Sun .. Fri| and thus will
+never take on the value |Sat|. Recall that the loop index variable of a |for| loop can not be
+modified inside the loop so there is no possibility of the programmer setting |Day| to |Sat|
+before the |case| statement is reached.
+
+\subsection{Subtypes}
+
+When a new type is defined using |type|, the compiler regards it as distinct from all other
+types. This is strong typing. However, sometimes it is better to define a constraint on an
+existing type rather than introduce an entirely new type. There are several different kinds of
+constraints one might define depending on the type being constrained. In this section I will
+talk about range constraints on discrete types. As an example, the definition
+
+\begin{lstlisting}
+subtype Weekday is Day_Type range Mon .. Fri;
+\end{lstlisting}
+
+\noindent introduces a subtype named |Weekday| that only contains the values |Mon| through
+|Fri|. It is important to understand that a subtype is not a new type, but just a name for a
+constrained version of the parent type. The compiler allows variables of a subtype to be mixed
+freely with variables of the parent type. Runtime checks are added if necessary to verify that
+no value is ever stored in a variable with a subtype that is outside the range of the subtype.
+If an attempt is made to do so, the |Constraint_Error| exception is raised. The listing below
+shows an example
+
+\begin{lstlisting}
+procedure Demonstrate_Subtypes
+  (Lower, Upper : in Day_Type; Day : in out Day_Type) is
+
+  subtype Interval is Day_Type range Lower .. Upper;
+  X : Interval := Interval'First;
+begin
+  Day := X;  -- No run time check. Will definitely succeed.
+  X := Day;  -- Run time check. Day might be out of range.
+End Demonstrate_Subtypes;
+\end{lstlisting}
+
+In this example a subtype |Interval| is defined in the procedure's declarative part. The
+variable |X| of type |Interval| is given |Interval|'s first value. Mixing |Interval| and
+|Day_Type| variables in the later assignment statements is allowed because they are really both
+of the same type. Because |Interval| is a subtype of |Day_Type| the assignment of |X| to |Day|
+must succeed. Thus the compiler does not need to include any runtime checks on the value of |X|.
+However, the value of |Day| might be outside the allowed range of the subtype and so the
+compiler will need to insert a run time check on |Day|'s value before assigning it to |X|. If
+that check fails, the |Constraint_Error| exception is raised. Under no circumstances can an out
+of bounds value be stored in a variable.
+
+I should point out that in this particular (simplistic) example the compiler's optimizer may be
+able to see that the value in |Day| will be in bounds of the subtype since in the assignment
+just before it was given a value from the subtype. In that case the compiler is allowed and
+encouraged to ``optimize away'' the run time check that would normally be required.
+
+This example also illustrates another important aspect of subtypes: they can be dynamically
+defined. Notice that the range on the subtype is taken from the procedure's parameters. Each
+time the procedure is called that range might be different. In contrast the range specified on
+full type definitions must be static (known to the compiler).
+
+A range such as |1 .. 10| is really an abbreviation for the specification of a subtype:
+
+\begin{lstlisting}
+Integer range 1 .. 10
+\end{lstlisting}
+
+\noindent Thus a |for| loop header such as |for I in 1 .. 10| is really just an abbreviation for
+the more specific |for I in Integer range 1 .. 10|. In general the |for| loop specifies a
+subtype over which the loop index variable ranges. This is why above it was not necessary to
+provide a case for |Sat|. The loop parameter |Day| implicitly declared in the loop header has
+the subtype |Day_Type range Sun .. Fri|. The |case| statement contains alternatives for all
+possible values in that subtype so the full coverage rules were satisfied.
+
+The Ada environment predefines two important and useful subtypes of |Integer|. Although you
+never have to explicitly define these types yourself, the compiler behaves as if the following
+two subtype definitions were always directly visible.
+
+\begin{lstlisting}
+subtype Natural is Integer range 0 .. Integer'Last;
+subtype Positive is Integer range 1 .. Integer'Last;
+\end{lstlisting}
+
+\noindent The subtype |Natural| is often useful for counters of various kinds. Since counts
+can't be negative the run time checking on |Natural|'s range constraint can help you find
+program errors. The subtype |Positive| is useful for cases where zero is a nonsensical value
+that should never arise. It is also often used for array indexes as you will see.
+
+\subsection{Never Use Integer}
+
+In Ada you should avoid using the type |Integer| (or |Float|) directly in your program. Instead
+it is better practice to introduce your own types or subtypes to name the scalar types you need.
+In addition to documenting your program better, this practice allows the compiler or, in the
+case of subtypes the runtime system, to catch many logical errors in your code. Ada is designed
+to help you write reliable programs, and its strong typing is a major feature in that regard.
+However, if you simply declare all your numeric scalar variables as |Integer| uniformly you are
+largely negating any benefits strong typing might provide.
+
+In this tutorial |Integer| is used frequently in the examples. This is largely because the
+examples are isolated snippets of code that are not really part of a larger program. Examples
+also often use short and meaningless variable names for the same reason. In real programs you
+should use good variable names and, in Ada, well considered type definitions that embody as many
+aspects of your program's design as possible.
+
+\subsection*{Exercises}
+
+\begin{enumerate}
+\item Using the definition of |Day_Type| presented earlier would you guess that the following
+  works or produces a compiler error: |for Day in Day_Type loop ...|? Write a short program to
+  see how the compiler behaves when presented with a loop like this.
+
+\item One of the examples above introduced separate |Row_Type| and a |Column_Type| definitions.
+  What disadvantage is there to keeping these concepts distinct? Would it be better to use a
+  single |Screen_Coordinate_Type| for both row and column coordinates instead?
+\end{enumerate}
+
+\section{Arrays and Records}
+
+Unlike C family languages, arrays in Ada are first class objects. This means you can assign one
+array to another, pass arrays into subprograms and return arrays from functions. Every array has
+a type, however, this type does not need to be named. For example:
+
+\begin{lstlisting}
+Workspace : array(1 .. 1024) of Character;
+\end{lstlisting}
+
+defines |Workspace| to be an array of characters indexed using the integers 1 through 1024. Note
+that although |Workspace| has an array type, the name of that type is not specified.
+
+In fact, you can define arrays using any discrete subtype for the index (recall that 1..1024 is
+really an abbreviation for an integer subtype specification). It is not possible to access an
+array out of bounds for exactly the same reason it's not possible to store an out of bounds
+value into a variable. The compiler raises the |Constraint_Error| exception in precisely the
+same way.
+
+The following example shows many important features.
+
+\begin{lstlisting}
+procedure Example is
+  type Day_Type is (Sun, Mon, Tue, Wed, Thu, Fri, Sat);
+  Work_Hours : array(Day_Type) of Natural;
+
+  function Adjust_Overtime
+    (Day : Day_Type; Hours : Natural) return Natural is
+  begin
+    -- Not shown.
+  end Adjust_Overtime;
+
+begin
+  Work_Hours := (0, 8, 8, 8, 8, 0);
+  for Day in Day_Type loop
+    Work_Hours(Day) := Adjust_Overtime(Day, Work_Hours(Day));
+  end loop;
+end Example;
+\end{lstlisting}
+
+\begin{enumerate}
+
+\item Arrays are accessed using parenthesis and not square brackets as in C family languages.
+  Thus array access has a syntax similar to that of a function call. An array of constant values
+  and can be replaced with a function later without clients needing to be edited.
+
+\item Any discrete subtype, including enumeration subtypes, can be used for an array index. In
+  the preceeding example the array |Work_Hours| has elements |Work_Hours(Sun)| and so forth.
+
+\item The nested function |Adjust_Overtime| uses a type defined in the enclosing procedure. This
+  is perfectly acceptable. The visibility of all names is handled uniformly.
+
+\item It is possible to use \newterm{array aggregates} in expressions where an array is
+  expected. |Work_Hours| is assigned a value that specifies every element of the array in one
+  step. The compiler deduces the type of the aggregate from its context.
+
+\item Notice that the same subtype is used for both the loop index variable and the array index.
+  This is a common situation and it means the compiler can optimize out the run time checks
+  normally required when accessing an array element. Since the value of |Day| can't possibly be
+  outside the range of allowed array indexes, there is no need to check that |Work_Hours(Day)|
+  is in bounds.
+
+\end{enumerate}
+
+In some cases it is appropriate to give a name to a particular array type. This is desirable if
+you plan on declaring many arrays that are intended to have the same type. When the type
+definition is in only one place, updating it later is easier. Also you can't assign one array to
+another unless they have the same type and in that case the type has to be named. The following
+example illustrates.
+
+\begin{lstlisting}
+procedure Example is
+  type Buffer_Type is array(0..1023) of Character;
+  B1 : Buffer_Type;
+  B2 : Buffer_Type;
+  B3 : array(0..1023) of Character;
+begin
+  B1 := B2;  -- Fine. Entire array assigned.
+  B1 := B3;  -- Error. Types don't match. B3 has anonymous type.
+end Example;
+\end{lstlisting}
+
+Because subtypes are defined dynamically the size and bounds of an array can also be defined
+dynamically. For example a declaration such as |A : array(1..N) of Natural| is allowed even if
+the value of |N| is not known at compile time (for example, it could be a subprogram parameter).
+This feature means that many places where dynamic allocation is necessary in, for example, C++
+can be handled in Ada without the use of explicit memory allocators.
+
+\subsection{Unconstrained Array Types}
+
+One problem with the standard definition of Pascal is that it is not possible to write a
+procedure that takes an array of unknown size. At first glance it appears that Ada would also
+have that problem. Arrays of different sizes have different types and strong typing will prevent
+them from being mixed. This would be a serious limitation. To get around this problem Ada has
+the concept of unconstrained array types. Such a type does not specify the bounds on the array,
+allowing arrays with different bounds to be in the same type. However, the bounds must be
+specified when an actual array object is declared so the compiler knows how much memory to
+allocate for the object. The following example illustrates.
+
+\begin{lstlisting}
+procedure Unconstrained_Array_Example is
+  type Buffer_Type is array(Integer range <>) of Character;
+  B1 : Buffer_Type;  -- Error. Must specify array bounds.
+  B2 : Buffer_Type( 0..15);  -- Okay.
+  B3 : Buffer_Type( 0..15);
+  B4 : Buffer_Type(16..31);  -- Fine.
+  B5 : Buffer_Type( 0..63);  -- No problem.
+
+  procedure Process_Buffer(Buffer : in Buffer_Type) is
+  begin
+    for I in Buffer'Range loop
+      -- Do something with Buffer(I)
+    end loop;
+  end Process_Buffer;
+
+begin
+  B2 := B3;  -- Fine. Types match and bounds compatible.
+  B2 := B4;  -- Fine! Types match and lengths identical.
+  B2 := B5;  -- Constraint_Error. Lengths don't match.
+
+  Process_Buffer(B2);  -- Fine.
+  Process_Buffer(B4);  -- Fine.
+  Process_Buffer(B5);  -- Fine.
+end Unconstrained_Array_Example;
+\end{lstlisting}
+
+Again there are several points to make about this example.
+
+\begin{enumerate}
+
+\item The symbol |<>| (pronounced “box”) is intended to be a placeholder for information that
+  will be filled in later. In this case it specifies that the index bounds on the array type
+  |Buffer_Type| is unconstrained.
+
+\item It is illegal to declare a variable with an unconstrained type without providing
+  constraints. This is why the declaration of |B1| is an error. However, the missing array
+  bounds are specified in the other declarations. Notice that it is not necessary for array
+  bounds to start at zero or one. Any particular value is fine as long as it is part of the
+  index type mentioned in the array declaration.
+
+\item It is fine to declare a subprogram, such as |Process_Buffer|, taking an unconstrained
+  array type as an parameter. However, such a subprogram can't safely access the elements of the
+  given array using specific index values like 1 or 2 because those values might not be legal
+  for the array. Instead one needs to use special array attributes. For example, |Buffer'First|
+  is the first index value that is valid for array |Buffer|, and similarly for |Buffer'Last|.
+  The attribute |Range| is shorthand for |Buffer'First..Buffer'Last| and is quite useful in for
+  loops as the example illustrates.
+
+\item You might find it surprising that the assignment |B2 := B4| is legal since the array
+  bounds do not match. However, the two arrays have the same length so corresponding elements of
+  the arrays are assigned. This is called sliding semantics (because you can imagine sliding one
+  array over until the bounds do match).
+
+\item All the calls to |Process_Buffer| are fine. Inside the procedure |Buffer'Range| adapts
+  itself to whatever array it is given and, provided the code is written with this in mind, the
+  procedure works for arrays of any size.
+
+\end{enumerate}
+
+\subsection{Records}
+
+In C family languages composite objects containing components with different types are called
+structures. In Ada (and many other languages) they are called records. All record types must
+have a name and thus must be declared before any objects of that type can be created. An example
+follows.
+
+\begin{lstlisting}
+procedure Example is
+  type Date is
+    record
+      Day   : Integer range 1 .. 31;
+      Month : Integer range 1 .. 12;
+      Year  : Natural;
+    end record;
+
+  Today    : Date := (Day => 1, Month => 7, Year => 2007);
+  Tomorrow : Date;
+begin
+  Tomorrow := Today;
+  Tomorrow.Day := Tomorrow.Day + 1;
+end Example;
+\end{lstlisting}
+
+This procedure defines a type |Date| as a collection of three named components. Notice that the
+|Day| and |Month| components are defined as subtypes of |Integer| without the bother of naming
+the subtypes involved (anonymous subtypes are used). |Today| is declared to be a |Date| and
+initialized with a \newterm{record aggregate}. In this case named association is used to make it
+clear which component gets which initial value, however positional association is also legal.
+
+Records can be assigned as entire units and their components accessed using the dot operator.
+Notice that if |Tomorrow.Day + 1| creates a value that is outside the range |1 .. 31|, a
+|Constraint_Error| exception will be raised, as usual when that out of bounds value is assigned
+to |Tomorrow.Day|. Obviously a more sophisticated procedure would check for this and adjust the
+month as necessary (as well as deal with the fact that not all months are 31 days long).
+
+\section{Packages}
+\label{sec:packages}
+
+A package is a named container into which you can place subprograms, type definitions, and other
+entities that are related to each other. Packages can even contain other packages. In Ada
+packages are the primary way to organize and manage the various parts of a program.
+
+Packages have two parts: a \newterm{specification} that declares the entities that are visible
+to the rest of the program, and a \newterm{body} that contains the implementation of those
+entities. The body can also contain private entities that can only be used inside the package.
+In most cases the specification is stored in a separate file from the body and can even be
+compiled separately. This makes the separation between a package's interface and implementation
+more rigorous in Ada than in many languages, encouraging the programmer to separate the process
+of software design from construction. This formal separation makes it easier for different
+groups of people to work on the design and construction of a program since those groups would be
+working with different sets of source files. At least this is the ideal situation. Alas, package
+specifications can have a private section, discussed later, that is technically part of the
+package's implementation. Thus, in some cases at least, interface and implementation end up in
+the same file after all.
+
+As an example, consider a simple package for displaying text on a character mode terminal. The
+following example shows what the specification might look like. When using the GNAT compiler,
+package specifications are stored in files with a \filename{.ads} extension using the same base
+name as the name of the package. In this case, the file would be \filename{screen.ads}.
+
+\begin{lstlisting}
+package Screen is
+
+   type Row_Type is range 1..25;
+   type Column_Type is range 1..80;
+   type Color_Type is (Black, Red, Green, Blue, White);
+
+   procedure Set_Cursor_Position
+      (Row : in Row_Type; Column : in Column_Type);
+   procedure Get_Cursor_Position
+      (Row : out Row_Type; Column : out Column_Type);
+
+
+   procedure Set_Text_Color(Color : in Color_Type);
+   procedure Get_Text_Color(Color : out Color_Type);
+
+   procedure Print(Text : String);
+
+end Screen;
+\end{lstlisting}
+
+There is no executable code in the specification; it only contains declarations. The example
+shows a few types being declared and then some procedures that make use of those types. Packages
+can also contain functions.
+
+Once the specification has been written code that makes use of the package can be compiled. Such
+a compilation unit contains a statement such as |with Screen| in its context clause. It can
+then, for example, refer to the type |Screen.Row_Type| and call procedure |Screen.Print| as you
+might expect. Note that a package specification can contain a context clause of its own if it
+needs, for example, types defined in some other package.
+
+The package body, stored in a \filename{.adb} file, contains the implementation of the various
+subprograms declared in the specification. The Ada compiler checks for consistency between the
+specification and the body. You must implement all subprograms declared in the specification and
+you must even use exactly the same names for the parameters to those subprograms. However,
+the body can define types and subprograms that are not declared in the specification. Such
+entities can only be used inside the package body; they are not visible to the users of the
+package. The following example shows an abbreviated version of \filename{screen.adb}.
+
+\begin{lstlisting}
+package body Screen is
+
+   -- Not declared in the spec. This is for internal use only.
+   procedure Helper is
+   begin
+     -- Implementation not shown.
+   end Helper;
+
+   -- All subprograms declared in spec must be implemented.
+   procedure Set_Cursor_Position
+      (Row : in Row_Type; Column : in Column_Type) is
+   begin
+     -- Implementation not shown.
+   end Set_Cursor_Position;
+
+   -- etc...
+
+end Screen;
+\end{lstlisting}
+
+The package body does not need to include a with clause for its own specification, however it
+can with other packages as necessary in order to gain access to the resources provided by those
+packages.
+
+When building a large program the package specifications can all be written first, before any
+real coding starts. The specifications are thus the final output of the design phase of the
+software development life cycle. These specifications can be compiled separately to verify that
+they are free from syntax errors and that they are internally consistent. The compiler can
+verify that all the necessary dependencies are explicitly declared via appropriate |with|
+statements, and that all types are used in a manner that is consistent with their declarations.
+
+Once the specifications are in place, the bodies can be written. Because a package body only
+depends on the specifications of the packages it uses, the bodies can all be written in
+parallel, by different people, without fear of inconsistency creeping into the program.
+Programmers could be forbidden to modify any specification files (for example by using
+appropriate access control features on a file server or version control system), requiring any
+such modifications to first be cleared by a designer. Surprisingly few programming languages
+enjoy this level of rigor in the management of code, but Ada was designed for large software
+projects and so its features are strong in this area.
+
+\subsection{Package Initialization}
+
+Packages sometimes contain internal variables that need to be initialized in some complex way
+before the package can be used. The package author could provide a procedure that does this
+initialization, but then there is a risk that it won't get called when it should. Instead, a
+package can define some initialization code of arbitrary complexity by introducing an executable
+section in the package body. The following example shows how this can be done.
+
+\begin{lstlisting}
+with Other;
+pragma Elaborate_All(Other);
+
+package body Example is
+
+   Counter : Integer;  -- Internal variable.
+
+   procedure Some_Operation is
+   begin
+      -- Implementation not shown.
+   end Some_Operation;
+
+begin
+  Counter := Other.Lookup_Initial("database.vtc.vsc.edu");
+
+end Example;
+\end{lstlisting}
+
+In this example, an internal variable |Counter| is initialized by calling a function in a
+supporting package |Other|. This initialization is done when the package body is elaborated.
+Notice that it is necessary in this example for the body of package |Other| to be elaborated
+first so that its initialization statements (if any) execute before the elaboration of the body
+of package |Example|. If that were not the case, then function |Lookup_Initial| might not work
+properly. To prevent undefined things from happening, an Ada program will instead raise the
+exception |Program_Error| at run time if packages get elaborated in an inappropriate order.
+
+To address this potential problem (since you don't really want the exception either) a pragma is
+included in the context clause of package |Example|'s body. Pragmas are commands to the compiler
+that control the way the program is built. The Ada standard defines several pragmas and
+implementations are allowed to define others. In this case the use of pragma |Elaborate_All|
+forces the bodies of package |Other| and any packages that package |Other| uses to be elaborated
+before the body of package |Example|. Note that the |with| clauses will automatically cause the
+specifications of the withed packages to be elaborated first, but not necessarily the bodies. In
+this case it is essential to control the order in which the package bodies are elaborated. Hence
+the pragma is necessary.
+
+Notice that Ada does not provide any facilities for automatically cleaning up a package with the
+program terminates. If a package has shutdown requirements a procedure must be defined for this
+purpose, and arrangements must be made to call that procedure at an appropriate time. In
+embedded systems, one of the major target application areas for Ada, programs are often never
+end. Thus the asymmetric handling of package initialization and cleanup is reasonable in that
+context. Other programming languages do provide ``module destructors'' of some kind to deal with
+this matter more uniformly.
+
+\subsection{Child Packages}
+
+Being able to put code into various packages is useful, but in a large program the number of
+packages might also be large. To cope with this Ada, like many languages, allows its packages to
+be organized into a hierarchy of packages, child packages, grand child packages, and so forth.
+This allows an entire library to be contained in a single package and yet still allows the
+various components of the library to be organized into different packages (or package
+hierarchies) as well. This is an essential facility for any language that targets the
+construction of large programs.
+
+As an example, consider a hypothetical data compression library. At the top level we might
+declare a package |Compress| to contain the entire library. Package |Compress| itself might be
+empty with a specification that contains no declarations at all (and no body). Alternatively one
+might include a few library-wide type definitions or helper subprograms in the top level
+package.
+
+One might then define some child packages of |Compress|. Suppose that |Compress.Algo| contains
+the compression algorithms and |Compress.Utility| contains utility subprograms that are used by
+the rest of the library but that are not directly related to data compression. Further child
+packages of |Compress.Algo| might be defined for each compression algorithm supported by the
+library. For example, |Compress.Algo.LZW| might provide types and subprograms related to the LZW
+compression algorithm and |Compress.Algo.Huffman| might provide types and subprograms related to
+the Huffman encoding compression algorithm. The following example shows a procedure that wishes
+to use some of the facilities of this hypothetical library.
+
+\begin{lstlisting}
+with Compress.Algo.LZW;
+
+procedure Hello is
+  Compressor : Compress.Algo.LZW.LZW_Engine;
+begin
+  Compress.Algo.LZW.Process(Compressor, "Compress Me!");
+end Hello;
+\end{lstlisting}
+
+In this example I assume the LZW package provides a type |LZW_Engine| that contains all the
+information needed to keep track of the compression algorithm as it works (presumably a record
+of some kind). I also assume that the package provides a procedure |Process| that updates the
+compressed data using the given string as input.
+
+Clearly a package hierarchy with many levels of child packages will produce very long names for
+the entities contained in those deeply nested packages. This can be awkward, but Ada provides
+two ways to deal with that. You have already met one way: the |use| statement. By including use
+|Compress.Algo.LZW| in the context clause, the contents of that package are made directly
+visible and the long prefixes can be deleted. However, Ada also allows you to rename a package
+to something shorter and more convenient. The following example shows how it could look.
+
+\begin{lstlisting}
+with Compress.Algo.LZW;
+
+procedure Hello is
+  package Squeeze renames Compress.Algo;
+  Compressor : Squeeze.LZW.LZW_Engine;
+begin
+  Squeeze.LZW.Process(Compressor “Compress Me!”);
+end Hello;
+\end{lstlisting}
+
+The package |Squeeze| is not a real package, but rather just a shorter, more convenient name for
+an existing package. This allows you to reduce the length of long prefixes without eliminating
+them entirely. Although the Ada community encourages the use of long, descriptive names in Ada
+programs, names that are local to a single procedure can sensibly be fairly short since they
+have limited scope. Using the renaming facility of the language you can introduce abbreviated
+names for packages (or other kinds of entities) with limited scope without compromising the
+overall readability of the program.
+
+Notice that the optimal names to use for entities in a package will depend on how the package
+itself is used. In the example above the package |LZW| provides a type |LZW_Engine|. In cases
+(such as shown) where fully qualified names are used the ``LZW'' in the name |LZW_Engine| is
+redundant and distracting. It might make sense to just name the type |Engine| yielding a fully
+qualified name of |Compress.Algo.LZW.Engine|. On the other hand, if use statements are used the
+name |Engine| by itself is rather ambiguous (what kind of engine is that?). In that case it
+makes more sense to keep the name |LZW_Engine|. Different programmers have different ideas about
+how much name qualification is appropriate and it leads to differences in the way names are
+selected.
+
+The problem is that the programmer who write a package is often different from the programmer
+who uses it and so incompatible naming styles can arise. Ada's renaming facility gives the using
+programmer a certain degree of control over the names that actually appear in his or her code,
+despite the names selected by the author of a library. The following example shows a more
+radical approach to renaming.
+
+\begin{lstlisting}
+with Compress.Algo.LZW;
+
+procedure Hello is
+  subtype LZW_Type is Compress.Algo.LZW.LZW_Engine;
+  procedure Comp(Engine : LZW_Type; Data : String)
+       renames Compress.Algo.LZW.Process;
+  Compressor : LZW_Type;
+begin
+  Comp(Compressor "Compress Me!");
+end Hello;
+\end{lstlisting}
+
+Notice that while packages and subprograms (and also objects) can be renamed, types can not be
+renamed in this way. Instead you can introduce a subtype without any constraints as a way of
+effectively renaming a type.
+
+In this simple example, the renaming declarations bulk up the code more than they save. However,
+in a longer and more complex situation they can be useful. On the other hand, you should use
+renaming declarations cautiously. People reading your code may be confused by the new names if
+it is not very clear what they represent.
+
+\section{Abstract Data Types}
+
+Often it is desirable to hide the internal structure of a type from its users. This allows the
+designer of that type to change its internal structure later without affecting the code that
+uses that type. Ada supports this concept by way of private types. A type can be declared as
+private in the visible part of a package specification. Users can then create variables of that
+type and use the built in assignment and equality test operations on that type. All other
+operations, however, must be provided in the package where the type is defined. Subprograms in
+the same package as the type have access to the type's internal representation. The following
+example shows a hypothetical package that provides a type representing calendar dates.
+
+\begin{lstlisting}
+ackage Example is
+   type Date is private;
+
+   function Make(Year, Month, Day : Integer) return Date;
+   function Get_Year(Today : Date) return Integer;
+   -- etc...
+   function Day_Difference(Future, Past : Date) return Integer;
+   -- etc...
+
+private
+   type Date is
+      record
+         Y : Integer;
+         M : Integer;
+         D : Integer;
+      end record;
+end Example;
+\end{lstlisting}
+
+Note that in a more realistic version of this package, one might introduce different types for
+year, month, and day values in order to prevent programs from accidentally mixing up those
+concepts. However, in the interest of brevity I do not show that in this example. The type
+|Date| is declared private in the visible part of the specification. It is then later fully
+defined as a record in the private part.
+
+Theoretically the full view of a type should not be in the specification at all; it is part of
+the package's implementation and thus should only be in the package body. However, Ada requires
+that private types be fully defined in package specifications as a concession to limited
+compiler technology. When the compiler translates code that declares variables of the private
+type, it needs to know how much memory to set aside for such variables. Thus while the
+programmer is forbidden to make use of the private type's internal structure, the compiler needs
+to do so. Note that some programming languages go further than Ada in this regard and move all
+such private information out of the interface definition. However, there is generally an
+execution performance penalty involved in doing this. In Ada it is possible to simulate such a
+feature using the so called ``pimpl idiom.'' This method involves access types and controlled
+types and so is not described further here.
+
+Note also that the full view of a private type does not need to be a record type. Although
+records are common in this situation, private types can be implemented as arrays or even just
+simple scalars like |Integer| or |Float|.
+
+Private types do allow assignment and equality tests. However, in some cases it is desirable to
+disallow those things. Ada makes this possible using limited private types. A declaration such
+as:
+
+\begin{lstlisting}
+type Date is limited private;
+\end{lstlisting}
+
+tells the compiler to disallow built in assignment and equality tests for the specified type.
+This does not mean assignment is impossible; it only means that the package author must now
+provide a procedure to do assignment---if support for assignment is desired. Presumably that
+procedure would take whatever steps were necessary to make the assignment work properly.
+Calendar dates are not good candidates to make into a limited type. The component-wise
+assignment of one date to another is exactly the correct way to assign dates. Thus the built in
+record assignment operation is fine. Similar comments apply to the built in test for equality
+operation. However, types that represent resources outside the computer system (for example a
+network connection) can't reasonably be assigned. They should be declared limited private
+instead.
+
+\section{Strings}
+
+\emph{To be written\ldots}
+
+\section{Exceptions}
+
+Like many modern programming languages, Ada allows subprograms to report error conditions using
+exceptions. When an error condition is detected an exception is raised. The exception propagates
+to the dynamically nearest handler for that exception. Once the handler has executed the
+exception is said to have been handled and execution continues after the handler. Exceptions are
+not resumable. This model is largely the same as that used by C++ although the terminology is
+different. However, unlike C++, Ada exceptions are not ordinary objects with ordinary types. In
+fact, Ada exceptions don't have a type at all and exist outside the language's type system.
+
+Exceptions are typically defined in a package specification. They are then raised in the package
+body under appropriate conditions and handled by the package users. The following example shows
+part of a specification for a |Big_Number| package that supports operations on arbitrary
+precision integers.
+
+\begin{lstlisting}
+package Big_Number is
+  type Number_Type is private;
+
+  Divide_By_Zero : exception;
+
+  function "+"(Left, Right : Number_Type) return Number_Type;
+  function "-"(Left, Right : Number_Type) return Number_Type;
+  function "*"(Left, Right : Number_Type) return Number_Type;
+  function "/"(Left, Right : Number_Type) return Number_Type;
+
+private
+  -- Not shown.
+end Big_Number;
+\end{lstlisting}
+
+Notice that Ada, like C++, allows operators to be overloaded. In Ada this is done by defining
+functions with names given by the operator names in quotation marks. This package also defines
+an exception that will be raised when one attempts to use |Big_Number."/"| with a zero divisor.
+
+The implementation of the division operation might look, in part, as follows:
+
+\begin{lstlisting}
+function "/"(Left, Right : Number_Type) return Number_Type is
+begin
+  -- Assume there is a suitable overloaded “=” operator.
+  if Right = 0 then
+    raise Divide_By_Zero;
+  end if;
+
+  -- Proceed knowing that the divisor is not zero.
+end "/";
+\end{lstlisting}
+
+As you might guess, the |raise| statement aborts execution of the function immediately. A
+procedure that wishes to use |Big_Number| might try to handle this exception in some useful way.
+The following example shows the syntax:
+
+\begin{lstlisting}
+procedure Example is
+  use type Big_Number.Number_Type;
+  X, Y, Z : Big_Number.Number_Type;
+begin
+  -- Fill Y and Z with interesting values.
+  X : = Y / Z;
+exception
+  when Big_Number.Divide_By_Zero =>
+    Put_Line("Big Number division by zero!");
+  when others =>
+    Put_Line("Unexpected exception!");
+end Example;
+\end{lstlisting}
+
+The block delimited by |begin| and |end| can contain a header |exception|. After that header a
+series of |when| clauses specify which exceptions the block is prepared to handle. The special
+clause |when others| is optional and is used for all exceptions that are otherwise not
+mentioned.
+
+If the normal statements in the block execute without exception, control continues after the
+block (skipping over the exception clauses). In the previous example the procedure returns at
+that point. If an exception occurs in the block, that exception is matched against those
+mentioned in the when clauses. If a match is found the corresponding statements are executed and
+then control continues after the block. If no match is found, the block is aborted and the next
+dynamically enclosing block is searched for a handler instead. If you are familiar with C++ or
+Java exceptions none of this should be surprising.
+
+The previous example also shows an interesting detail related to operator overloading. The
+example assumes that there is a context clause of |with Big_Number| (not shown) but no |use|
+statement. Thus the division operator is properly named |Big_Number."/"|. Unfortunately it can't
+be called using the infix operator notation with that name. There are several ways to get around
+this. One could include a |use Big_Number| in the context clause or in the procedure's
+declarative part. However that would also make all the other names in package |Big_Number|
+directly visible and that might not be desired. An alternative is to introduce a local function
+named |"/"| that is just a renaming (essentially an alias) of the function in the other package.
+As we have seen Ada allows such renaming declarations in many situations, but in this case,
+every operator function would need a corresponding renaming and that could be tedious.
+
+Instead the example shows a more elegant approach. The |use type| declaration tells the compiler
+that the primitive operations of the named type should be made directly visible. I will discuss
+primitive operations in more detail in the section on object oriented programming. In this case,
+the operator overloads that are declared in package |Big_Number| are primitive operations. This
+method allows all the operator overloads to be made directly visible with one easy statement,
+and yet does not make every name in the package directly visible.
+
+The Ada language specifies four predefined exceptions. These exceptions are declared in package
+|Standard| (recall that package |Standard| is effectively built into the compiler) and thus
+directly visible at all times. The four predefined exceptions with their use are described as
+follows:
+
+\begin{itemize}
+
+\item |Constraint_Error|. Raised whenever a constraint is violated. This includes going outside
+  the bounds of a subtype (or equivalently the allowed range of an array index) as well as
+  various other situations.
+
+\item |Program_Error|. Raised when certain ill formed programs that can't be detected by the
+  compiler are executed. For example, if a function ends without executing a return statement,
+  |Program_Error| is raised.
+
+\item |Storage_Error|. Raised when the program is out of memory. This can occur during dynamic
+  memory allocation, or be due to a lack of stack space when invoking a subprogram. This can
+  also occur during the elaboration of a declarative part (for example if the dynamic bounds
+  on an array are too large).
+
+\item |Tasking_Error|. Raised in connection with certain tasking problems. It is outside the
+  scope of this tutorial to cover these details.
+
+\end{itemize}
+
+Most of the time the predefined exceptions are raised automatically by the program under the
+appropriate conditions. It is legal for you to explicitly raise them if you choose, but it is
+recommended that you define your own exceptions for your code. Note that the Ada standard
+library defines some additional exceptions as well. Those exceptions are not really predefined
+because, unlike the four above, they are not built into the language itself.
+
+\section{Discriminated Types}
+
+\emph{To be written\ldots}
+
+\section{Generics}
+
+Statically checked strongly typed languages like Ada force subprogram argument types and
+parameter types to match at compile time. This is awkward in situations where the same sequence
+of instructions could be applied to several different types. To satisfy the compile time type
+checking requirements, it is necessary to duplicate those instructions for each type being used.
+To get around this problem, Ada allows you to define generic subprograms and generic packages
+where the types used are parameters to the generic unit. Whenever a new version of the generic
+unit is needed, it is \newterm{instantiated} by the compiler for specific values of the type
+parameters.
+
+Ada generics are very similar in concept and purpose to C++ templates. Like C++ templates,
+generics are handled entirely at compile time; each instantiation generates code that is
+specialized for the types used to instantiate it. This is different than generics in Java which
+are resolved at run time and that use a common code base for all instances. However, Ada
+generics and C++ templates also differ in some important ways. First Ada requires the programmer
+to explicitly instantiate a generic unit using special syntax. In C++ instantiations are done
+implicitly. Just mentioning the instance causes it to come into existence. In addition, Ada
+generics do not support explicit specialization or partial specialization, two features of C++
+templates thare used in many advanced template libraries.
+
+There are pros and cons to Ada's approach as compared to C++'s method. With Ada, it is very
+clear where the instantiation occurs (since it is shown explicitly in the source code). However,
+C++'s method enables advanced programming techniques (template meta-programming) that Ada can't
+easily replicate.
+
+The other major difference between Ada generics and C++ templates is that Ada allows the
+programmer to specify the necessary properties of the types used to instantiate a generic unit.
+In contrast in C++ one only says that the parameter is a type. If a type is used to instantiate
+a template that doesn't make sense, the compiler only realizes that when it is actually doing
+the instantiation. The resulting error messages are highly cryptic and misleading. In contrast
+the Ada compiler can check before it begins the instantiation process if the given types are
+acceptable. If they are not, it can provide a much clearer and more specific error message.
+
+To illustrate how Ada generics look, consider the following example that shows the specification
+of a generic package containing a number of sorting procedures.
+
+\begin{lstlisting}
+generic
+  type Element_Type is private;
+  with function "<"(Left, Right : Element_Type) return Boolean;
+package Sorters is
+  type Element_Array is array(Natural range <>) of Element_Type;
+
+  procedure Quick_Sort(Sequence : in out Element_Array);
+  procedure Heap_Sort(Sequence : in out Element_Array);
+  procedure Bubble_Sort(Sequence : in out Element_Array);
+end Sorters;
+\end{lstlisting}
+
+Notice that the specification has a generic header that defines the parameters to this generic
+unit. The first such parameter is a type that will be called |Element_Type| in the scope of the
+generic package. It is declared as a private type to indicate that the package will only (by
+default) be able to assign and compare for equality objects of that type. It is thus possible to
+instantiate this package for private types, but non-private types like |Integer|, arrays, and
+records also have the necessary abilities and can be used. However, a limited type (for example,
+a type declared as |limited private| in some other package) can not be used.
+
+This generic package also requires its user to provide a function that can compare two
+|Element_Type| objects. That function is called |"<"| in the scope of the package, but it could
+be called anything by the user. It must, however, have the same profile (the same number and
+type of parameters).
+
+Inside the implementation of the generic package, |Element_Type| can be used as a private type
+except that it is also permitted to use |"<"| to compare two |Element_Type| objects. No other
+operations on |Element_Type| objects are allowed to guarantee the package will instantiate
+correctly with any type the user is allowed to use.
+
+The following example shows how this package might be used:
+
+\begin{lstlisting}
+with Sorters;
+
+procedure Example is
+  package Integer_Sorters is
+    new Sorters(Element_Type => Integer, "<" => Standard."<");
+
+  Data : Integer_Sorters.Element_Array;
+begin
+  -- Fill Data with interesting information.
+
+  Integer_Sorters.Quick_Sort(Data);
+end Example;
+\end{lstlisting}
+
+Notice the first line in the declarative region that instantiates the generic unit. In the
+example, named parameter association is used to bind the generic unit's arguments to its
+parameters. The strange looking construction |"<" => Standard."<"| is an association between the
+generic parameter |"<"| (the comparison function) and the operator $<$ that applies to integers
+(declared in package |Standard|). It would be more typical for the right side of this
+association (and even the left side as well) to be normally named functions.
+
+The name |Integer_Sorters| is given to the specific instance created. That name can then be used
+like the name of any other package. In fact, it is legal (and common) to follow a generic
+instantiation with a |use| statement to make the contents of the newly instantiated package
+directly visible.
+
+Ada also allows procedures and functions to be generic using an analogous syntax.
+
+This example is fairly simple in that the generic type parameter has very limited abilities. It
+is also possible to specify that the parameter is a discrete type (thus allowing the use of
+|'First|, |'Last|, |'Succ| and |'Pred| attributes), an access type, a tagged type, a modular
+type, a floating point type, and various other possibilities. In addition, Ada's generic
+facility allows generic units to be parameterized on values (so called ``non-type'' parameters
+in C++) and variables. I refer you to one of the references for more information on generic
+units in Ada. The discussion here is only scratching the surface of the topic.
+
+\section{Access Types}
+
+Ada, like many languages, allows you to create objects that refer to other objects. It also
+allows you to create objects that have a lifetime extending beyond that of the scope in which
+they are created. Both of these capabilities are important and many programming techniques
+depend on them. C and C++ allow the programmer to use arbitrary pointers, implemented as simple
+memory addresses, in any way desired. While this is very powerful, it is also very dangerous. C
+and C++ programs suffer from many bugs and security vulnerabilities related to the unrestricted
+use of pointers in those languages.
+
+In Ada pointer types are called access types. Like C and C++ pointer variables, access variables
+can be manipulated separately from the objects to which they point. However, unlike C and C++
+pointer types, access types in Ada have a number of restrictions on their use that are designed
+to make them safer.
+
+Actually, the history of access types in Ada is quite interesting. In Ada 83 access types were
+very limited but also very safe. However, experience with Ada showed that the limitations were
+too great. Ada 95 removed some of the limitations while still managing to keep the safety (at
+the expense of complicating the language). Yet even after these changes, access types were still
+not as flexible as desired. Ada 2005 removed yet more limitations but now requires, in certain
+cases, run time checking to be done to ensure safety. In this tutorial I will not describe
+these issues in detail. My focus here is on the basic use of access types in Ada.
+
+Access types can be named or anonymous. I will only consider named access types; anonymous
+access types have special properties that are outside the scope of this tutorial. For example
+the declaration:
+
+\begin{lstlisting}
+type Integer_Access is access Integer;
+\end{lstlisting}
+
+declares |Integer_Access| as a type suitable for accessing, or pointing at, integers. Notice
+that in this tutorial I have used a suffix of ``Type'' when naming a type. In this case,
+however, I use a suffix of ``Access'' to emphasize the nature of the access type. This is, of
+course, just a convention.
+
+Once the access type has been declared, variables of that type can then be declared in the usual
+way.
+
+\begin{lstlisting}
+P : Integer_Access;
+\end{lstlisting}
+
+Ada automatically initializes access variables to the special value |null| if no other
+initialization is given. Thus access variables are either null or they point at some real
+object. Indeed, the rules of Ada are such that dangling pointers are not possible. Access
+variables can be copied and compared like any other variable. For example if |P1| and |P2| are
+access variables than |P1 = P2| is true if they both point at the same object. To refer to the
+object pointed at by an access variable you must use the special |.all| operation.
+
+\begin{lstlisting}
+P.all := 1;
+\end{lstlisting}
+
+The |.all| plays the same role in Ada as the indirection operator (the *) plays in C and C++.
+The use of |.all| may seem a little odd in this context, but understand that most of the time
+access types are pointers to records. In that case, the components of the record pointed at can
+be accessed directly by using the component selection operation on the access variable itself.
+This is shown as follows:
+
+\begin{lstlisting}
+type Date is
+  record
+    Day, Month, Year : Integer;
+  end record;
+type Date_Access is access Date;
+
+D1, D2 : Date_Access;
+
+...
+
+D1.Day := 1;      -- Accesses the Day member of referenced Date.
+D1     := D2;     -- Causes D1 to point at same object as D2.
+D1.all := D2.all; –- Copies Date objects.
+\end{lstlisting}
+
+In this case the |.all| syntax is very natural. It shows that you are accessing all the members
+of the referenced object at the same time. It is important to notice that Ada normally
+``forwards'' operations applied to the access variable to the referenced object. Thus |D1.Day|
+in the example means the |Day| component of the object pointed at by |D1|. Only operations that
+are meaningful for the access type itself are not forwarded. Thus |D1 := D2| copies the access
+values. To copy the objects pointed at by the access variables one must use the |.all| syntax. I
+should also note that syntax such as |D1.all.Day|, while verbose, is also legal. The |.all|
+dereferences |D1|. The result is a date record so the selection of the |Day| component is
+meaningful.
+
+Access variables that refer to arrays also allow the normal array operations to be forwarded to
+the referenced object as the following example illustrates:
+
+\begin{lstlisting}
+type Buffer_Type is array(0..1023) of Character;
+type Buffer_Access is access Buffer_Type;
+B1, B2 : Buffer_Access;
+
+...
+
+B1     := B2;     -- Copies only the access values.
+B1.all := B2.all  -- Copies arrays.
+B1(0)  := 'X'     -- Forwards index operation.
+for I in B1'Range loop    -- Forwards 'Range attribute.
+  ...
+end loop;
+\end{lstlisting}
+
+Because of forwarding, using access types is generally quite convenient in Ada. However, you
+must keep in mind that operations that are meaningful for the access types themselves will be
+applied directly to the access objects and are not forwarded.
+
+So far we've seen how to declare and use access types. How does one get an access variable to
+point at another object in the first place? In Ada 83 there was only one way: using the new
+operation. For example:
+
+\begin{lstlisting}
+P := new Integer'(0);
+\end{lstlisting}
+
+dynamically allocates an integer, initializes that integer to zero, and then assigns the
+resulting access value to |P|. Here I assume |P| has an access to integer type. Notice that
+argument to new has the form of a qualified expression (the apostrophe is required). Also as
+with dynamically allocated objects in other languages, the lifetime of the object created in
+this way extends beyond the lifetime of the access variable used to point at it.
+
+\subsection{Garbage Collection?}
+
+In many languages dynamically allocated objects are automatically reclaimed when they can no
+longer be accessed. For example, in Ada parlance, when all access variables pointing at an
+object go out of scope the object pointed at by those variables can no longer be referenced and
+the memory it uses should be made available again. The process of reclaiming such memory is
+called \newterm{garbage collection}.
+
+In Ada garbage collection is optional. Implementations are allowed to provide it, but they are
+not required to do so. This may seem surprisingly wishy-washy for a language that endeavors to
+support reliable and portable programming. The problem is that Ada also endeavors to support low
+level embedded systems and real time programming. In such environments garbage collection is
+widely considered problematic. It is difficult to meet real time objectives if a complex garbage
+collection algorithm might run at any time. Also the space overhead of having a garbage
+collector in the run time system might be unacceptable for space constrained embedded devices.
+Advances in garbage collection technology and machine capabilities have made some of these
+concerns less pressing today than they were when Ada was first designed. However, these matters
+are still important. Thus Ada allows, but does not require garbage collection.
+
+This presents an immediate problem for programmers interested in portability. If the
+implementation does not collect its garbage and the programmer takes no steps to manually
+reclaim allocated objects, the program will leak memory. This is a disaster for long running
+programs like servers. Thus for maximum portability one must assume that garbage collection is
+not done and take steps accordingly. In fact, most Ada implementations do not provide garbage
+collection, so this is a very realistic concern.
+
+The Ada library provides a generic procedure named |Unchecked_Deallocation| that can be used to
+manually deallocate a dynamically allocated object. Unfortunately the use of
+|Unchecked_Deallocation| can violate important safety properties the language otherwise
+provides. In particular, if you deallocate an object while an access variable still points at
+it, any further use of that access variable will result in erroneous behavior1. As a service
+|Unchecked_Deallocation| will set the access variable you give it to |null| causing future use
+of that access variable to result in a well defined exception. However, there might be other
+access variables that point at the same object and |Unchecked_Deallocation| can not know about
+all of them in general.
+
+If your program never uses |Unchecked_Deallocation| then all access variables are either |null|
+or point at a real object; dangling pointers are impossible. However, your program might also
+leak memory if the Ada implementation does not provide garbage collection. Thus in most real
+programs |Unchecked_Deallocation| is used.
+
+This is an example of where Ada compromises safety for the sake of practical reality. In fact,
+there are several other ``Unchecked'' operations in Ada that are used to address certain
+practical concerns and yet introduce the possibility of unsafe programs. Since every such
+operation starts with the word ``Unchecked'' it is an simple matter to search an Ada program for
+occurrences of them. This feature makes reviewing the unchecked operations easier.
+
+\textit{Show an example of Unchecked\_Deallocation\ldots}
+
+\section{Command Line Arguments}
+
+\textit{To be written\ldots}
+
+\section{Object Oriented Programming}
+
+\textit{To be written\ldots}
+
+\section{Tasking}
+
+Many programs can be naturally described as multiple, interacting, concurrent threads of
+execution. Programming environments that provide direct support for concurrency are thus very
+useful. Such support can be offered by the operating system or by the programming language or
+some combination of the two.
+
+The classic way in which operating systems support concurrency is by allowing multiple
+independent processes to run simultaneously. This method has the advantage of offering good
+isolation between the processes so that if one crashes the others are not necessarily affected.
+On the other hand, communication between processes tends to have high overhead. Modern operating
+systems also usually allow programs to be written that have multiple threads of control
+executing in the same process. This \newterm{thread level concurrency} is harder to program
+correctly but has reduced overhead as compared to the older style \newterm{process level
+  concurrency}.
+
+In some environments offering thread level concurrency the programmer must invoke subprograms in
+a special library to create and synchronize threads. Such an approach requires relatively little
+support from the programming language but it tends to be error prone. Another approach is to
+build support for thread level concurrency into the programming language itself. This allows the
+compiler to take care of the low level details of thread management, freeing the programmer to
+focus on other aspects of the program's design. Ada uses this second approach and supports
+concurrent programming as a language feature.
+
+The unit of execution in Ada is called a task. The main program executes in a task called the
+environment task. You can create additional tasks as appropriate to meet your application's
+needs. Like a package each task has a specification and a body. In the simplest case a task
+specification only needs to declare that the task exists. The following example illustrates the
+basic syntax.
+
+\begin{lstlisting}
+with Ada.Text_IO;
+with Helper;
+
+procedure Main is
+
+  – Specification of nested task.
+  task Nag;
+
+  – Body of nested task.
+  task body Nag is
+  begin
+    for I in 1 .. 100 loop
+      Ada.Text_IO.Put_Line("Hello");
+      delay 10.0;
+    end loop;
+  end Nag;
+
+begin
+  Helper.Something_Useful;
+end Main;
+\end{lstlisting}
+
+In this example a task |Nag| is both specified and defined in the declarative part of the main
+program. The task simply prints ``Hello'' one hundred times with a 10 second delay between each
+line of output. While the task does this important work, the main program simultaneously
+executes the useful function of the program.
+
+It is important to understand that the task starts executing automatically as soon as the
+enclosing subprogram begins. It is not necessary to explicitly start the task. Furthermore the
+enclosing subprogram will not return until the task has completed. Care must be taken to ensure
+that the task eventually ends. If the task never ends the enclosing subprogram will never
+return.
+
+Because the task is nested inside another program unit it has access to the local variables and
+other entities declared in the enclosing unit above the task's definition. This gives a way for
+the task to share information with the enclosing unit but beware that sharing data in this
+manner is difficult and error prone. As I will describe shortly Ada provides much more robust
+ways for tasks to communicate.
+
+The example above shows a task nested inside a procedure. Tasks can also be nested inside
+functions or even inside each other. This allows you to create a task to assist in the execution
+of any subprogram without anyone outside your subprogram being aware that tasks are involved.
+You can also create tasks inside a package body that support the operation of that package. Be
+aware, however, that if you do create a task inside a library package body you need to arrange
+for that task to eventually end or else the program will never terminate.
+
+\textit{Finish me\ldots}
+
+\section{Container Library}
+
+\textit{To be written\ldots}
+
+\section{Low Level Programming}
+
+\textit{To be written\ldots}
+
