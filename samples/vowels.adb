@@ -1,22 +1,15 @@
 ---------------------------------------------------------------------------
--- FILE          : vowel.adb
--- LAST REVISION : 2008-06-22
--- SUBJECT       : This program counts the vowels in the input file.
--- PROGRAMMER    : (C) Copyright 2008 by Peter C. Chapin
+-- FILE    : vowels.adb
+-- SUBJECT : This program counts the vowels in the input file.
 --
--- The character 'Y' is handled as a special case. 'Y' is sometimes a vowel
--- and sometimes not depending on context. A correct vowel counting program
--- would need to consider this issue and would be much more complicated.
+-- The character 'Y' is handled as a special case. 'Y' is sometimes a vowel and sometimes not
+-- depending on context. A correct vowel counting program would need to consider this issue and
+-- would be much more complicated.
 --
--- Please send comments or bug reports to
---
---      Peter C. Chapin
---      Computer Information Systems
---      Vermont Technical College
---      Randolph Center, VT 05061
---      Peter.Chapin@vtc.vsc.edu
+-- Exercise: Enhance this program to count (or not) occurrences of Y appropriately.
 ---------------------------------------------------------------------------
 
+-- Used in the tutorial section on control structures...
 with Ada.Text_IO;         use Ada.Text_IO;
 with Ada.Integer_Text_IO; use Ada.Integer_Text_IO;
 
@@ -31,12 +24,14 @@ begin
          when 'A'|'E'|'I'|'O'|'U' |
               'a'|'e'|'i'|'o'|'u' =>
             Vowel_Count := Vowel_Count + 1;
+
          when 'Y'|'y' =>
             Y_Count := Y_Count + 1;
+
          when others =>
             null;
       end case;
    end loop;
    Put("Total number of vowels = "); Put(Vowel_Count); New_Line;
-   Put("Total number of Ys     = "); Put(Y_Count); New_Line;
+   Put("Total number of Ys = "); Put(Y_Count); New_Line;
 end Vowels;

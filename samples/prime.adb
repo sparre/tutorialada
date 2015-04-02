@@ -9,6 +9,7 @@
 -- Exercise: What happens if you enter something that is not a number? Can you fix it?
 ---------------------------------------------------------------------------
 
+-- Used in the tutorial section on control structures...
 with Ada.Text_IO;         use Ada.Text_IO;
 with Ada.Integer_Text_IO; use Ada.Integer_Text_IO;
 
@@ -22,7 +23,7 @@ begin
    else
       Put("The value "); Put(Number, 0);
       for I in 2 .. (Number - 1) loop
-         if Number mod I = 0 then
+         if Number rem I = 0 then
             Put_Line(" is not prime.");
             return;
          end if;

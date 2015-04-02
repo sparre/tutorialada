@@ -15,7 +15,7 @@ project Samples is
       when others =>
          case Platform is
             when "native" =>
-               for Main use ("filter.adb", "hello.adb", "prime.adb", "prime2.adb", "prime_factors.adb", "samples_test.adb");
+               for Main use ("filter.adb", "hello.adb", "prime.adb", "prime2.adb", "prime_factors.adb", "samples_test.adb", "vowels");
          end case;
    end case;
 
