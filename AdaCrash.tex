@@ -8,7 +8,7 @@
 % ++++++++++++++++++++++++++++++++
 % Preamble and global declarations
 % ++++++++++++++++++++++++++++++++
-\documentclass{report}
+\documentclass{scrreprt}
 
 % --------
 % Packages
@@ -106,21 +106,17 @@
 % ----------------------
 % Title page information
 % ----------------------
+\titlehead{\centering\includegraphics[scale=0.05]{Ada-Mascot.pdf}}
 \title{Ada--A Crash Course}
 \author{Peter Chapin\thanks{PChapin@vtc.vsc.edu}\\
   Vermont Technical College}
 \date{Generated: \today}
 \maketitle
 
+\tableofcontents
+
 %\lstMakeShortInline[basicstyle=\ttfamily]|
 \lstMakeShortInline|
-
-% I'd like to have the mascot on the title page. Not sure how to do that right now.
-%
-%\begin{figure}[h]
-%  \center
-%  \scalebox{0.1}{\includegraphics*{Ada-Mascot.pdf}}
-%\end{figure}
 
 % ------------
 % Main Content
